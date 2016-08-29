@@ -1,0 +1,75 @@
+include Makefile.srcs
+
+# General configuration variables:
+export PORTLIBS        ?= $(VITASDK)/arm-vita-eabi
+export PKG_CONFIG_PATH := $(PORTLIBS)/lib/pkgconfig
+export CFLAGS          := -std=c99 -ftree-vectorize -O3 -ffat-lto-objects -flto \
+                          -mword-relocations -fomit-frame-pointer -ffast-math
+export CPPFLAGS        := -I$(PORTLIBS)/include
+export LDFLAGS         := -L$(PORTLIBS)/lib
+
+export AR              := arm-vita-eabi-gcc-ar
+export RANLIB          := arm-vita-eabi-gcc-ranlib
+
+CC := arm-vita-eabi-gcc
+CXX := arm-vita-eabi-g++
+STRIP := arm-vita-eabi-strip
+
+INSTALLDIR = $(VITASDK)/arm-vita-eabi
+
+# Converts cr/lf to just lf
+DOS2UNIX = dos2unix
+
+LIBRARIES = -lstdc++
+
+MODULES = $(SRCS:.c=.o)
+MODULES := $(MODULES:.cpp=.o)
+CFLAGS ?= -O3 -fPIC -fexceptions -fvisibility=hidden
+# OpenJPEG
+CFLAGS += -DOPJ_STATIC
+# LibRaw
+CFLAGS += -DNO_LCMS
+# LibJXR
+CFLAGS += -DDISABLE_PERF_MEASUREMENT -D__ANSI__
+CFLAGS += $(INCLUDE)
+CXXFLAGS ?= -O3 -fPIC -fexceptions -fvisibility=hidden -Wno-ctor-dtor-privacy
+# LibJXR
+CXXFLAGS += -D__ANSI__
+CXXFLAGS += $(INCLUDE)
+
+TARGET  = freeimage
+STATICLIB = lib$(TARGET).a
+LIBNAME	= lib$(TARGET).so
+VERLIBNAME = $(LIBNAME).$(VER_MAJOR)
+HEADER = Source/FreeImage.h
+
+default: all
+
+all: dist
+
+dist: FreeImage
+	mkdir -p Dist
+	cp *.a Dist/
+	cp Source/FreeImage.h Dist/
+
+dos2unix:
+	@$(DOS2UNIX) $(SRCS) $(INCLS)
+
+FreeImage: $(STATICLIB)
+
+.c.o:
+	$(CC) $(CFLAGS) -c $< -o $@
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(STATICLIB): $(MODULES)
+	$(AR) r $@ $(MODULES)
+
+install:
+	cp Dist/libfreeimage.a $(INSTALLDIR)/lib/
+	cp Source/FreeImage.h $(INSTALLDIR)/include/
+#	ldconfig
+
+clean:
+	rm -f core Dist/*.* u2dtmp* $(MODULES) $(STATICLIB) $(LIBNAME)

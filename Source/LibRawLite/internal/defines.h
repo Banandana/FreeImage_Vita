@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright 2008-2013 LibRaw LLC (info@libraw.org)
 
 LibRaw is free software; you can redistribute it and/or modify
@@ -62,7 +62,7 @@ it under the terms of the one of three licenses as you choose:
 #else
 #include <unistd.h>
 #include <utime.h>
-#include <netinet/in.h>
+#include "inet.h"
 #include <stdint.h>
 typedef int64_t INT64;
 typedef uint64_t UINT64;

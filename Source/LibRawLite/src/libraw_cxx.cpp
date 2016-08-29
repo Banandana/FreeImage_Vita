@@ -27,7 +27,7 @@ it under the terms of the one of three licenses as you choose:
 #include <sys/types.h>
 #include <sys/stat.h>
 #ifndef WIN32
-#include <netinet/in.h>
+#include "inet.h"
 #else
 #include <winsock2.h>
 #endif
@@ -4530,4 +4530,3 @@ end:
   if(raise_error)
     throw LIBRAW_EXCEPTION_IO_CORRUPT;
 }
-
